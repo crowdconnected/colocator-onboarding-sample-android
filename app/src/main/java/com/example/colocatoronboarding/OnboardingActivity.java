@@ -3,18 +3,22 @@ package com.example.colocatoronboarding;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager.widget.ViewPager;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.Html;
-import android.transition.Slide;
+import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewParent;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class OnboardingActivity extends AppCompatActivity {
 
-    private ViewPager sliveViewPager;
+    private ViewPager slideViewPager;
     private LinearLayout dotLayout;
     private Button skipButton;
 
@@ -28,28 +32,50 @@ public class OnboardingActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_onboarding);
 
-        sliveViewPager = (ViewPager) findViewById(R.id.slideViewPager);
+        slideViewPager = (ViewPager) findViewById(R.id.slideViewPager);
         dotLayout = (LinearLayout) findViewById(R.id.dotLayout);
         skipButton = (Button) findViewById(R.id.skip);
 
         slideAdapter = new SliderAdapter(this);
 
-        sliveViewPager.setAdapter(slideAdapter);
+        slideViewPager.setAdapter(slideAdapter);
 
         addDotsIndicator(0);
 
-        sliveViewPager.addOnPageChangeListener(viewListener);
+        slideViewPager.addOnPageChangeListener(viewListener);
+
+        slideViewPager.setOnTouchListener(new View.OnTouchListener() {
+
+            public boolean onTouch(View arg0, MotionEvent arg1) {
+                return true;
+            }
+        });
 
         skipButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (currentPage < 3) {
-                    sliveViewPager.setCurrentItem(currentPage + 1);
+                if (currentPage == dots.length - 1) {
+                    endOnboarding();
                 } else {
-                    //TODO Switch to InAppActivity
+                    goToNextPage();
                 }
             }
         });
+    }
+
+    public void goToNextPage() {
+        slideViewPager.setCurrentItem(currentPage + 1);
+    }
+
+    private void endOnboarding() {
+        Log.e("Flow","End Onboarding called");
+        final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        sharedPref.edit().putBoolean("is_user_onboarded", true).commit();
+
+        Intent activityIntent = new Intent(OnboardingActivity.this, InAppActivity.class);
+
+        startActivity(activityIntent);
+        finish();
     }
 
     public void addDotsIndicator(int position) {
@@ -59,14 +85,14 @@ public class OnboardingActivity extends AppCompatActivity {
         for (int i = 0; i < dots.length; i++) {
             dots[i] = new TextView(this);
             dots[i].setText(Html.fromHtml("&#8226;"));
-            dots[i].setTextSize(35);
+            dots[i].setTextSize(40);
             dots[i].setTextColor(getResources().getColor(R.color.colorGrey));
 
             dotLayout.addView(dots[i]);
         }
 
         if (dots.length > 0) {
-            for (int i = 0; i <= position; i++) {
+            for (int i = 0; i < position; i++) {
                 dots[i].setTextColor(getResources().getColor(R.color.colorPrimary));
             }
         }
@@ -83,7 +109,7 @@ public class OnboardingActivity extends AppCompatActivity {
             addDotsIndicator(position);
             currentPage = position;
 
-            if (position == 0) {
+            if (position != dots.length - 1) {
                 skipButton.setEnabled(false);
                 skipButton.setVisibility(View.INVISIBLE);
                 skipButton.setText("");
@@ -99,4 +125,15 @@ public class OnboardingActivity extends AppCompatActivity {
 
         }
     };
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        Log.i("Permission", "Permission Result - Code " + requestCode);
+        switch (requestCode) {
+            case 0: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) { } else { }
+                endOnboarding();
+            }
+        }
+    }
 }
