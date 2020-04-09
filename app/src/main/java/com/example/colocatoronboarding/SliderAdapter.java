@@ -41,8 +41,8 @@ public class SliderAdapter extends PagerAdapter {
     };
     public String[] descriptions = {
             "Welcome to Colocator Onboarding experience",
-            "Lorem ipsum dolor sit amet, per ad commodo scaevola explicari, vel ex quis assum dolorem. Unum ullum maiestatis nam at. Tation repudiandae usu ut.",
-            "Lorem ipsum dolor sit amet, per ad commodo scaevola explicari, vel ex quis assum dolorem. Unum ullum maiestatis nam at. Tation repudiandae usu ut."
+            "We take privacy seriously and will only use your personal data in accordance with our Privacy Policy, this to build you a better event experience.",
+            "By allowing us to access your Location, we can take your event experience to the next level."
     };
     public String[] actions = {
             "Start",

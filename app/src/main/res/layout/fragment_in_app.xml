@@ -40,7 +40,7 @@
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="100dp"
         android:gravity="center"
-        android:text="In case the user denied Location or Motion permission, here's how to ask for it again."
+        android:text="In case the user denied Location permission, here's how to ask for it again."
         android:textColor="#F9F9F9"/>
 
     <Button
